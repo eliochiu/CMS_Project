@@ -1,12 +1,13 @@
 <template>
   <el-container>
     <el-aside width="auto">
-      <CommonAside></CommonAside>
+      <common-aside></common-aside>
     </el-aside>
     <el-container>
       <el-header>
-        <CommonHeader></CommonHeader>
+        <common-header></common-header>
       </el-header>
+      <common-tag></common-tag>
       <el-main>
         <router-view></router-view>
       </el-main>
@@ -18,6 +19,7 @@
 // 引入CommonAside组件
 import CommonAside from "@/components/CommonAside.vue";
 import CommonHeader from "@/components/CommonHeader.vue";
+import CommonTag from "@/components/CommonTag.vue";
 export default {
   data() {
     return {};
@@ -25,7 +27,8 @@ export default {
 
   components: {
     CommonAside,
-    CommonHeader
+    CommonHeader,
+    CommonTag
 },
 
 

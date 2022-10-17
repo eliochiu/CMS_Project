@@ -42,6 +42,7 @@
 
 <script>
 export default {
+  name: "common-aside",
   data() {
     return {
       menuData: [
@@ -105,6 +106,8 @@ export default {
       ) {
         this.$router.push(item.path);
       }
+
+      this.$store.commit("selectMenu", item);
     },
   },
 
