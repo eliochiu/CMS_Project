@@ -16,6 +16,6 @@ Mock.mock('/api/user/edit', 'post', userApi.updateUser);
 Mock.mock('/api/user/delete', 'post', userApi.deleteUser);
 
 // 获得用户列表
-Mock.mock('/api/user/getUser', userApi.getUserList);
+Mock.mock(/\/api\/user\/getUser/, userApi.getUserList);
 
 
