@@ -16,19 +16,21 @@ const routes = [
   {
     path: '/',
     redirect: '/home',
+    name: 'main',
     component: Main,
     children: [
-      { path: 'home', name: 'home', component: Home }, // 首页
-      { path: 'user', name: 'user', component: User }, // 用户管理
-      { path: 'mall', name: 'mall', component: Mall }, // 商品管理
-      { path: 'page1', name: 'page1', component: PageOne }, // 其他页面1
-      { path: 'page2', name: 'page2', component: PageTwo } // 其他页面2
+      // { path: 'home', name: 'home', component: Home }, // 首页
+      // { path: 'user', name: 'user', component: User }, // 用户管理
+      // { path: 'mall', name: 'mall', component: Mall }, // 商品管理
+      // { path: 'page1', name: 'page1', component: PageOne }, // 其他页面1
+      // { path: 'page2', name: 'page2', component: PageTwo } // 其他页面2
     ]
   },
 
   // 登录页
   {
     path: '/login',
+    name: 'login',
     component: Login
   }
 ]

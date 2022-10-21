@@ -87,16 +87,22 @@ export default {
     return {
       // 对话框是否可见
       dialogFormVisible: false,
+
+      // 宽度参数
       formLabelWidth: "100px",
+
       // 0表示新增弹窗，1表示编辑弹窗
       modelType: 0,
+
       // 数据总条数
       total: 0,
+
       // 分页参数
       pageData: {
         page: 1,
         limit: 10
       },
+
       // 表单数据
       form: {
         name: "",
@@ -105,6 +111,7 @@ export default {
         birth: "",
         addr: "",
       },
+
       // 表单校验规则
       rules: {
         name: [
@@ -123,8 +130,10 @@ export default {
           { required: true, message: '请填写地址', trigger: 'blur' }
         ]
       },
+
       // 表格数据
       tableData: [],
+
       // 搜索表单数据
       userForm: {
         name: ""
@@ -137,10 +146,13 @@ export default {
   },
 
   methods: {
-    // 清空表单
-    handleClose() {
-      this.$refs.form.resetFields();
-      this.dialogFormVisible = false;
+    // 刷新列表数据
+    getList() {
+      // 根据搜索和分页参数获取列表数据
+      getUser({ params: { ...this.userForm, ...this.pageData } }).then(({ data }) => {
+        this.tableData = data.list;
+        this.total = data.count || 0;
+      })
     },
 
     // 提交用户表单
@@ -167,23 +179,32 @@ export default {
         }
       })
     },
+    
+    // 点击取消后的逻辑 -- 清空表单
+    cancel() {
+      this.handleClose();
+    },
 
+    // 清空表单
+    handleClose() {
+      this.$refs.form.resetFields();
+      this.dialogFormVisible = false;
+    },
+
+    // 处理分页数据
     handlePage(val) {
       this.pageData.page = val;
       this.getList();
     },
 
-    cancel() {
-      // 清空表单
-      this.handleClose();
-    },
-
+    // 处理编辑
     handleEdit(row) {
       this.modelType = 1;
       this.dialogFormVisible = true;
       this.form = JSON.parse(JSON.stringify(row));
     },
 
+    // 处理删除
     handleDelete(row) {
       this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -206,19 +227,13 @@ export default {
 
     },
 
+    // 处理添加
     handleAdd() {
       this.modelType = 0;
       this.dialogFormVisible = true;
     },
 
-    getList() {
-      // 获取列表数据
-      getUser({ params: { ...this.userForm, ...this.pageData } }).then(({ data }) => {
-        this.tableData = data.list;
-        this.total = data.count || 0;
-      })
-    },
-
+    // 提交后刷新数据
     onSubmit() {
       this.getList();
     }
