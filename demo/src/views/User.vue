@@ -1,12 +1,6 @@
 <template>
-  <div id="User">
-    <!-- Form -->
-    <div class="manage-header">
-      <el-button type="primary" @click="handleAdd">
-        + 新增
-      </el-button>
-    </div>
-
+  <div class="manage">
+    <!-- 对话框表单 -->
     <el-dialog :title="modelType === 0 ? '新增用户' : '编辑用户'" :before-close="handleClose" :visible.sync="dialogFormVisible"
       width="50%">
       <!-- 用户的表单信息 -->
@@ -37,31 +31,51 @@
       </div>
     </el-dialog>
 
-    <el-table :data="tableData" style="width: 100%">
-      <el-table-column prop="name" label="姓名">
-      </el-table-column>
-      <el-table-column prop="sex" label="性别">
-        <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row.sex === 0 ? "男" : "女" }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="age" label="年龄">
-      </el-table-column>
-      <el-table-column prop="birth" label="出生日期">
-      </el-table-column>
-      <el-table-column prop="addr" label="地址">
-      </el-table-column>
-      <el-table-column label="操作">
-        <template slot-scope="scope">
-          <el-button size="mini" @click="handleEdit(scope.row)">编辑</el-button>
-          <el-button size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
-        </template>
-      </el-table-column>
-      <el-popconfirm title="这是一段内容确定删除吗？">
-        <el-button slot="reference">删除</el-button>
-      </el-popconfirm>
+    <!-- 新增按钮 -->
+    <div class="manage-header">
+      <el-button type="primary" @click="handleAdd">
+        + 新增
+      </el-button>
+      <!-- 搜索 -->
+      <el-form ref="userForm" :model="userForm" :inline="true">
+        <el-form-item>
+          <el-input placeholder="请输入名称" v-model="userForm.name"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="onSubmit">查 询</el-button>
+        </el-form-item>
 
-    </el-table>
+      </el-form>
+    </div>
+
+    <!-- 渲染在页面中的表格 -->
+    <div class="common-table">
+      <el-table stripe height="90%" :data="tableData" style="width: 100%">
+        <el-table-column prop="name" label="姓名">
+        </el-table-column>
+        <el-table-column prop="sex" label="性别">
+          <template slot-scope="scope">
+            <span style="margin-left: 10px">{{ scope.row.sex === 0 ? "男" : "女" }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="age" label="年龄">
+        </el-table-column>
+        <el-table-column prop="birth" label="出生日期">
+        </el-table-column>
+        <el-table-column prop="addr" label="地址">
+        </el-table-column>
+        <el-table-column label="操作">
+          <template slot-scope="scope">
+            <el-button size="mini" @click="handleEdit(scope.row)">编辑</el-button>
+            <el-button size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div class="pager">
+        <el-pagination layout="prev, pager, next" :total="total" @current-change="handlePage">
+        </el-pagination>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -71,10 +85,19 @@ import { getUser, editUser, addUser, deleteUser } from '../api'
 export default {
   data() {
     return {
+      // 对话框是否可见
       dialogFormVisible: false,
       formLabelWidth: "100px",
       // 0表示新增弹窗，1表示编辑弹窗
       modelType: 0,
+      // 数据总条数
+      total: 0,
+      // 分页参数
+      pageData: {
+        page: 1,
+        limit: 10
+      },
+      // 表单数据
       form: {
         name: "",
         age: "",
@@ -82,6 +105,7 @@ export default {
         birth: "",
         addr: "",
       },
+      // 表单校验规则
       rules: {
         name: [
           { required: true, message: '请输入姓名', trigger: 'blur' },
@@ -99,7 +123,12 @@ export default {
           { required: true, message: '请填写地址', trigger: 'blur' }
         ]
       },
-      tableData: []
+      // 表格数据
+      tableData: [],
+      // 搜索表单数据
+      userForm: {
+        name: ""
+      }
     };
   },
   mounted() {
@@ -111,6 +140,7 @@ export default {
     // 清空表单
     handleClose() {
       this.$refs.form.resetFields();
+      this.dialogFormVisible = false;
     },
 
     // 提交用户表单
@@ -124,32 +154,28 @@ export default {
             addUser(this.form).then(() => {
               // 刷新当前列表
               this.getList();
-            })
+            });
           } else {
             // 如果要编辑用户
             editUser(this.form).then(() => {
               // 刷新当前列表
               this.getList();
-            })
+            });
           }
-          // 清空数据
+          // 清空数据并关闭弹窗
           this.handleClose();
-          // 关闭弹窗
-          this.dialogFormVisible = false;
-        } else {
-
         }
       })
     },
 
-
+    handlePage(val) {
+      this.pageData.page = val;
+      this.getList();
+    },
 
     cancel() {
       // 清空表单
       this.handleClose();
-
-      // 关闭对话框
-      this.dialogFormVisible = false;
     },
 
     handleEdit(row) {
@@ -158,8 +184,25 @@ export default {
       this.form = JSON.parse(JSON.stringify(row));
     },
 
-    handleDelete() {
-
+    handleDelete(row) {
+      this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteUser({ id: row.id }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          });
+          this.getList();
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });
+      });
 
     },
 
@@ -170,53 +213,38 @@ export default {
 
     getList() {
       // 获取列表数据
-      getUser().then(({ data }) => {
+      getUser({ params: { ...this.userForm, ...this.pageData } }).then(({ data }) => {
         this.tableData = data.list;
+        this.total = data.count || 0;
       })
+    },
+
+    onSubmit() {
+      this.getList();
     }
   }
 };
 </script>
 
-<style>
+<style lang="less" scoped>
+.manage {
+  height: 90%;
 
+  .manage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .common-table {
+    position: relative;
+    height: calc(100% - 62px);
+
+    .pager {
+      position: absolute;
+      bottom: 0;
+      right: 20px;
+    }
+  }
+}
 </style>
-
-
-<!-- operateFormLabel: [
-                    {
-                        model: 'name',
-                        label: '姓名',
-                        type: 'input'
-                    },
-                    {
-                        model: 'age',
-                        label: '年龄',
-                        type: 'input'
-                    },
-                    {
-                        model: 'sex',
-                        label: '性别',
-                        type: 'select',
-                        opts: [
-                            {
-                                label: '男',
-                                value: 1
-                            },
-                            {
-                                label: '女',
-                                value: 0
-                            }
-                        ]
-                    },
-                    {
-                        model: 'birth',
-                        label: '出生日期',
-                        type: 'date'
-                    },
-                    {
-                        model: 'addr',
-                        label: '地址',
-                        type: 'input'
-                    }
-                ], -->
