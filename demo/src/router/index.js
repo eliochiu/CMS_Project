@@ -7,6 +7,7 @@ import Main from '../views/Main.vue'
 import Mall from '../views/Mall.vue'
 import PageOne from '../views/PageOne.vue'
 import PageTwo from '../views/PageTwo.vue'
+import Login from '../views/Login.vue'
 
 Vue.use(VueRouter)
 
@@ -24,6 +25,12 @@ const routes = [
       { path: 'page2', name: 'page2', component: PageTwo } // 其他页面2
     ]
   },
+
+  // 登录页
+  {
+    path: '/login',
+    component: Login
+  }
 ]
 
 const router = new VueRouter({
